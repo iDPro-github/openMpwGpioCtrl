@@ -23,6 +23,10 @@
     `include "gl/user_project_wrapper.v"
     `include "gl/user_proj_example.v"
 `else
+    `include "gpioModule/gpioCtrl.v"
+    `include "ramInterface/openRam.v"
+    `include "ramInterface/ramArbiter.v"
+    `include "wishboneSlave/wbSlave.v"
     `include "user_project_wrapper.v"
     `include "user_proj_example.v"
 `endif

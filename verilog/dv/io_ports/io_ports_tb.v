@@ -53,9 +53,10 @@ module io_ports_tb;
 		$dumpvars(0, io_ports_tb);
 
 		// Repeat cycles of 1000 clock edges as needed to complete testbench
+		//repeat (500) begin
 		repeat (25) begin
 			repeat (1000) @(posedge clock);
-			// $display("+1000 cycles");
+			$display("+1000 cycles");
 		end
 		$display("%c[1;31m",27);
 		`ifdef GL
@@ -69,18 +70,19 @@ module io_ports_tb;
 
 	initial begin
 	    // Observe Output pins [7:0]
-	    wait(mprj_io_0 == 8'h01);
-	    wait(mprj_io_0 == 8'h02);
-	    wait(mprj_io_0 == 8'h03);
-    	    wait(mprj_io_0 == 8'h04);
-	    wait(mprj_io_0 == 8'h05);
-            wait(mprj_io_0 == 8'h06);
-	    wait(mprj_io_0 == 8'h07);
-            wait(mprj_io_0 == 8'h08);
-	    wait(mprj_io_0 == 8'h09);
-            wait(mprj_io_0 == 8'h0A);   
-	    wait(mprj_io_0 == 8'hFF);
-	    wait(mprj_io_0 == 8'h00);
+	    //wait(mprj_io_0 == 8'h01);
+	    //wait(mprj_io_0 == 8'h02);
+	    //wait(mprj_io_0 == 8'h03);
+    	//wait(mprj_io_0 == 8'h04);
+	    //wait(mprj_io_0 == 8'h05);
+        //wait(mprj_io_0 == 8'h06);
+	    //wait(mprj_io_0 == 8'h07);
+        //wait(mprj_io_0 == 8'h08);
+	    //wait(mprj_io_0 == 8'h09);
+        //wait(mprj_io_0 == 8'h0A);   
+	    //wait(mprj_io_0 == 8'hFF);
+	    //wait(mprj_io_0 == 8'h00);
+		wait(mprj_io[31:0] === 32'h12345678);
 		
 		`ifdef GL
 	    	$display("Monitor: Test 1 Mega-Project IO (GL) Passed");
@@ -115,7 +117,7 @@ module io_ports_tb;
 	end
 
 	always @(mprj_io) begin
-		#1 $display("MPRJ-IO state = %b ", mprj_io[7:0]);
+		#1 $display("MPRJ-IO state = %b ", mprj_io[37:0]);
 	end
 
 	wire flash_csb;

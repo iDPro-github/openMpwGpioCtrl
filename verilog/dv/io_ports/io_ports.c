@@ -27,6 +27,8 @@
 
 void main()
 {
+	int i;
+	uint32_t *curAddr;
 	/* 
 	IO Control Registers
 	| DM     | VTRIP | SLOW  | AN_POL | AN_SEL | AN_EN | MOD_SEL | INP_DIS | HOLDH | OEB_N | MGMT_EN |
@@ -53,20 +55,22 @@ void main()
 	// so that the CSB line is not left floating.  This allows
 	// all of the GPIO pins to be used for user functions.
 
-	// Configure lower 8-IOs as user output
-	// Observe counter value in the testbench
-	reg_mprj_io_0 =  GPIO_MODE_USER_STD_OUTPUT;
-	reg_mprj_io_1 =  GPIO_MODE_USER_STD_OUTPUT;
-	reg_mprj_io_2 =  GPIO_MODE_USER_STD_OUTPUT;
-	reg_mprj_io_3 =  GPIO_MODE_USER_STD_OUTPUT;
-	reg_mprj_io_4 =  GPIO_MODE_USER_STD_OUTPUT;
-	reg_mprj_io_5 =  GPIO_MODE_USER_STD_OUTPUT;
-	reg_mprj_io_6 =  GPIO_MODE_USER_STD_OUTPUT;
-	reg_mprj_io_7 =  GPIO_MODE_USER_STD_OUTPUT;
+	// Configure all 32 IOs as user output (37:32 unused!)
+	// Observe value in the testbench
+	for(i=0; i<32; i++) {
+		curAddr = 0x26000024 + i; // base address of reg_mprj_io_0
+		*curAddr =  GPIO_MODE_USER_STD_OUTPUT;
+	}
 
 	/* Apply configuration */
 	reg_mprj_xfer = 1;
 	while (reg_mprj_xfer == 1);
 
+	// set gpio value in user address space
+	curAddr = 0x30000008;
+	*curAddr = 0x12345678;
+	// set gpio output enable in user address space
+	curAddr = 0x3000000C;
+	*curAddr = 0xFFFFFFFF;
 }
 

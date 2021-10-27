@@ -38,9 +38,6 @@ module wbSlave (
     wire            CTRL_WE_i;
     reg             CTRL_WE_Q;
 
-    // module output
-    assign DAT_O = DAT_O_i;
-
     // ram access
     assign RAM_CSb      = (ADR_I[7] == 1'b1) ? 1'b0 : 1'b1;
     assign RAM_WE_i     = (ADR_I[7] == 1'b1) ? CYC_I & STB_I & WE_I : 1'b0;

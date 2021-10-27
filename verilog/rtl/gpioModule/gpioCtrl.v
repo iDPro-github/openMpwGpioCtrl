@@ -278,7 +278,8 @@ module gpioCtrl (
     end
 
     // logic for ram access
-    always @(*) begin
+    always @(*) begin : ramAccessLogic
+        reg [4:0] vBitOutCountSum;
         // default
         RAM_CSb_IN  <= 1'b1;
         RAM_CSb_OUT <= 1'b1;
@@ -291,7 +292,8 @@ module gpioCtrl (
             RAM_ADDR_i <= {BIT_IN_COUNT_Q[9:5], 2'b00};
         end else if (FSM_OUT_Q != sFSM_OUT_STOP) begin
             RAM_CSb_OUT <= 1'b0;
-            RAM_ADDR_i  <= {BIT_OUT_COUNT_Q[9:5] + 1, 2'b00};
+            vBitOutCountSum = BIT_OUT_COUNT_Q[9:5] + 1;
+            RAM_ADDR_i  <= {vBitOutCountSum, 2'b00};
         end
     end
     //assign RAM_ADDR = (FSM_IN_Q != sFSM_IN_STOP) ? {BIT_IN_COUNT_Q[9:5], 2'b00} : {BIT_OUT_COUNT_Q[9:5] + 1, 2'b00};
