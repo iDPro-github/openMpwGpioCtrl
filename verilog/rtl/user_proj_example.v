@@ -13,7 +13,8 @@
 // limitations under the License.
 // SPDX-License-Identifier: Apache-2.0
 
-`default_nettype none
+//`default_nettype none
+`default_nettype wire
 /*
  *-------------------------------------------------------------
  *
@@ -68,98 +69,162 @@ module user_proj_example #(
     // IRQ
     output [2:0] irq
 );
-    wire clk;
-    wire rst;
-
-    wire [`MPRJ_IO_PADS-1:0] io_in;
-    wire [`MPRJ_IO_PADS-1:0] io_out;
-    wire [`MPRJ_IO_PADS-1:0] io_oeb;
-
-    wire [31:0] rdata; 
-    wire [31:0] wdata;
-    wire [BITS-1:0] count;
-
-    wire valid;
-    wire [3:0] wstrb;
-    wire [31:0] la_write;
-
-    // WB MI A
-    assign valid = wbs_cyc_i && wbs_stb_i; 
-    assign wstrb = wbs_sel_i & {4{wbs_we_i}};
-    assign wbs_dat_o = rdata;
-    assign wdata = wbs_dat_i;
-
-    // IO
-    assign io_out = count;
-    assign io_oeb = {(`MPRJ_IO_PADS-1){rst}};
+    // gpio interface
+    wire            GPIO_WE;
+    wire   [3:0]    GPIO_ADDR;
+    wire   [31:0]   GPIO_DATA_IN;
+    wire   [31:0]   GPIO_DATA_OUT;
+    // RAM interface 1 (wishbone bus)
+    wire            WB_RAM_CSb;
+    wire            WB_RAM_WEb;
+    wire    [7:0]   WB_RAM_ADDR;
+    wire    [31:0]  WB_RAM_DATA_IN;
+    wire    [31:0]  WB_RAM_DATA_OUT;
+    // RAM interface 2 (gpio control)
+    wire            GPIO_RAM_CSb;
+    wire            GPIO_RAM_WEb;
+    wire    [7:0]   GPIO_RAM_ADDR;
+    wire    [31:0]  GPIO_RAM_DATA_IN;
+    wire    [31:0]  GPIO_RAM_DATA_OUT;
+    // open RAM
+    wire            RAM_CSb[3:0];
+    wire            RAM_WEb[3:0];
+    wire    [4:0]   RAM_ADDR[3:0];
+    wire    [7:0]   RAM_DATA_IN[3:0];
+    wire    [7:0]   RAM_DATA_OUT[3:0];
 
     // IRQ
     assign irq = 3'b000;	// Unused
 
-    // LA
-    assign la_data_out = {{(127-BITS){1'b0}}, count};
-    // Assuming LA probes [63:32] are for controlling the count register  
-    assign la_write = ~la_oenb[63:32] & ~{BITS{valid}};
-    // Assuming LA probes [65:64] are for controlling the count clk & reset  
-    assign clk = (~la_oenb[64]) ? la_data_in[64]: wb_clk_i;
-    assign rst = (~la_oenb[65]) ? la_data_in[65]: wb_rst_i;
+    // logic analyzer output signals
+    assign la_data_out[0]       = GPIO_WE;
+    assign la_data_out[1+:2]    = GPIO_ADDR[3:2];
+    assign la_data_out[3+:32]   = GPIO_DATA_IN;
+    assign la_data_out[35]      = RAM_CSb[0];
+    assign la_data_out[36]      = RAM_WEb[0];
+    assign la_data_out[37+:5]   = RAM_ADDR[0];
+    assign la_data_out[42+:8]   = RAM_DATA_IN[0];
+    assign la_data_out[50+:8]   = RAM_DATA_OUT[0];
+    assign la_data_out[58]      = RAM_CSb[0];
+    assign la_data_out[59]      = RAM_WEb[0];
+    assign la_data_out[60+:5]   = RAM_ADDR[0];
+    assign la_data_out[65+:8]   = RAM_DATA_IN[0];
+    assign la_data_out[73+:8]  = RAM_DATA_OUT[0];
+    assign la_data_out[81]     = RAM_CSb[0];
+    assign la_data_out[82]     = RAM_WEb[0];
+    assign la_data_out[83+:5]  = RAM_ADDR[0];
+    assign la_data_out[88+:8]   = RAM_DATA_IN[0];
+    assign la_data_out[96+:8]   = RAM_DATA_OUT[0];
+    assign la_data_out[104]      = RAM_CSb[0];
+    assign la_data_out[105]      = RAM_WEb[0];
+    assign la_data_out[106+:5]   = RAM_ADDR[0];
+    assign la_data_out[111+:8]   = RAM_DATA_IN[0];
+    assign la_data_out[119+:8]   = RAM_DATA_OUT[0];
+    // logic analyter input signals (unused)
+    //la_data_in
+    //la_oenb
 
-    counter #(
-        .BITS(BITS)
-    ) counter(
-        .clk(clk),
-        .reset(rst),
-        .ready(wbs_ack_o),
-        .valid(valid),
-        .rdata(rdata),
-        .wdata(wbs_dat_i),
-        .wstrb(wstrb),
-        .la_write(la_write),
-        .la_input(la_data_in[63:32]),
-        .count(count)
+    // wishbone slave interface
+    wbSlave wbSlave_inst (
+        // wishbone slave interface
+        .CLK_I          (wb_clk_i),  // bus clock signal
+        .RST_I          (wb_rst_i),  // bus reset signal
+        .STB_I          (wbs_stb_i),  // bus transaction request
+        .CYC_I          (wbs_cyc_i),  // active transaction
+        .WE_I           (wbs_we_i),   // write request
+        .SEL_I          (wbs_sel_i),  // byte select for request
+        .DAT_I          (wbs_dat_i),  // data for request
+        .ADR_I          (wbs_adr_i),  // address for request
+        .ACK_O          (wbs_ack_o),  // request acknowledge, read data valid
+        .DAT_O          (wbs_dat_o),  // requested read data
+        .CTRL_WE        (GPIO_WE),
+        .CTRL_ADDR      (GPIO_ADDR),
+        .CTRL_DATA_IN   (GPIO_DATA_IN),
+        .CTRL_DATA_OUT  (GPIO_DATA_OUT),
+        .RAM_CSb        (WB_RAM_CSb),
+        .RAM_WEb        (WB_RAM_WEb),
+        .RAM_ADDR       (WB_RAM_ADDR),
+        .RAM_DATA_IN    (WB_RAM_DATA_IN),
+        .RAM_DATA_OUT   (WB_RAM_DATA_OUT)
     );
 
-endmodule
+    // gpio control module
+    gpioCtrl gpioCtrl_inst (
+        // system
+        .CLK            (wb_clk_i), 
+        .RSTb           (!wb_rst_i),
+        // control interface
+        .CTRL_WE        (GPIO_WE),
+        .CTRL_ADDR      (GPIO_ADDR),
+        .CTRL_DATA_IN   (GPIO_DATA_IN),
+        .CTRL_DATA_OUT  (GPIO_DATA_OUT),
+        // caravel gpio signaling
+        .GPIO_IN        (io_in),
+        .GPIO_OUT       (io_out),
+        .GPIO_OEb       (io_oeb),
+        // RAM interface
+        .RAM_CSb        (GPIO_RAM_CSb),
+        .RAM_WEb        (GPIO_RAM_WEb),
+        .RAM_ADDR       (GPIO_RAM_ADDR),
+        .RAM_DATA_IN    (GPIO_RAM_DATA_IN),
+        .RAM_DATA_OUT   (GPIO_RAM_DATA_OUT)
+    );
 
-module counter #(
-    parameter BITS = 32
-)(
-    input clk,
-    input reset,
-    input valid,
-    input [3:0] wstrb,
-    input [BITS-1:0] wdata,
-    input [BITS-1:0] la_write,
-    input [BITS-1:0] la_input,
-    output ready,
-    output [BITS-1:0] rdata,
-    output [BITS-1:0] count
-);
-    reg ready;
-    reg [BITS-1:0] count;
-    reg [BITS-1:0] rdata;
+    // ram arbiter
+    ramArbiter ramArbiter_inst (
+        // system
+        .CLK            (CLK_I_tb),
+        .RSTb           (!RST_I_tb),
+        // ctrl interface 1
+        .CTRL_CSb1      (WB_RAM_CSb),
+        .CTRL_WEb1      (WB_RAM_WEb),
+        .CTRL_ADDR1     (WB_RAM_ADDR),
+        .CTRL_DATA_IN1  (WB_RAM_DATA_IN),
+        .CTRL_DATA_OUT1 (WB_RAM_DATA_OUT),
+        // ctrl interface 2
+        .CTRL_CSb2      (GPIO_RAM_CSb),
+        .CTRL_WEb2      (GPIO_RAM_WEb),
+        .CTRL_ADDR2     (GPIO_RAM_ADDR),
+        .CTRL_DATA_IN2  (GPIO_RAM_DATA_IN),
+        .CTRL_DATA_OUT2 (GPIO_RAM_DATA_OUT),
+        // RAM interface byte0
+        .RAM_CSb0       (RAM_CSb[0]),
+        .RAM_WEb0       (RAM_WEb[0]),
+        .RAM_ADDR0      (RAM_ADDR[0]),
+        .RAM_DATA_IN0   (RAM_DATA_IN[0]),
+        .RAM_DATA_OUT0  (RAM_DATA_OUT[0]),
+        // RAM interface byte1
+        .RAM_CSb1       (RAM_CSb[1]),
+        .RAM_WEb1       (RAM_WEb[1]),
+        .RAM_ADDR1      (RAM_ADDR[1]),
+        .RAM_DATA_IN1   (RAM_DATA_IN[1]),
+        .RAM_DATA_OUT1  (RAM_DATA_OUT[1]),
+        // RAM interface byte2
+        .RAM_CSb2       (RAM_CSb[2]),
+        .RAM_WEb2       (RAM_WEb[2]),
+        .RAM_ADDR2      (RAM_ADDR[2]),
+        .RAM_DATA_IN2   (RAM_DATA_IN[2]),
+        .RAM_DATA_OUT2  (RAM_DATA_OUT[2]),
+        // RAM interface byte3
+        .RAM_CSb3       (RAM_CSb[3]),
+        .RAM_WEb3       (RAM_WEb[3]),
+        .RAM_ADDR3      (RAM_ADDR[3]),
+        .RAM_DATA_IN3   (RAM_DATA_IN[3]),
+        .RAM_DATA_OUT3  (RAM_DATA_OUT[3])
+    );
 
-    always @(posedge clk) begin
-        if (reset) begin
-            count <= 0;
-            ready <= 0;
-        end else begin
-            ready <= 1'b0;
-            if (~|la_write) begin
-                count <= count + 1;
-            end
-            if (valid && !ready) begin
-                ready <= 1'b1;
-                rdata <= count;
-                if (wstrb[0]) count[7:0]   <= wdata[7:0];
-                if (wstrb[1]) count[15:8]  <= wdata[15:8];
-                if (wstrb[2]) count[23:16] <= wdata[23:16];
-                if (wstrb[3]) count[31:24] <= wdata[31:24];
-            end else if (|la_write) begin
-                count <= la_write & la_input;
-            end
+    // 32-bit open RAM instanciation
+    generate
+        genvar vRamByte;
+        for (vRamByte=0; vRamByte<4; vRamByte=vRamByte+1) begin
+            openRam openRam_inst (
+                .CLK        (CLK_I_tb),
+                .CSb        (RAM_CSb[vRamByte]),
+                .WEb        (RAM_WEb[vRamByte]),
+                .ADDR       (RAM_ADDR[vRamByte]),
+                .DATA_IN    (RAM_DATA_IN[vRamByte]),
+                .DATA_OUT   (RAM_DATA_OUT[vRamByte])
+            );
         end
-    end
-
+    endgenerate
 endmodule
-`default_nettype wire
