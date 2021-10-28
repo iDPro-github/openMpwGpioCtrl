@@ -1,0 +1,66 @@
+[*]
+[*] GTKWave Analyzer v3.3.111 (w)1999-2020 BSI
+[*] Thu Oct 28 09:47:57 2021
+[*]
+[dumpfile] "/home/basti/iDPro/openMpw/iDPro/openMpwGpioCtrl/verilog/dv/io_ports/io_ports.vcd"
+[dumpfile_mtime] "Thu Oct 28 09:34:29 2021"
+[dumpfile_size] 776829315
+[savefile] "/home/basti/iDPro/openMpw/iDPro/openMpwGpioCtrl/verilog/dv/io_ports/wishboneSlaveCfg.gtkw"
+[timestart] 907047500
+[size] 1790 864
+[pos] -1 -1
+*-17.347948 907868200 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] io_ports_tb.
+[treeopen] io_ports_tb.uut.
+[treeopen] io_ports_tb.uut.mprj.mprj.
+[treeopen] io_ports_tb.uut.soc.soc.mprj_ctrl.
+[sst_width] 285
+[signals_width] 387
+[sst_expanded] 1
+[sst_vpaned_height] 467
+@200
+-wishbone if
+@28
+io_ports_tb.uut.mprj.mprj.wbSlave_inst.RST_I
+io_ports_tb.uut.mprj.mprj.wbSlave_inst.CLK_I
+io_ports_tb.uut.mprj.mprj.wbSlave_inst.CYC_I
+io_ports_tb.uut.mprj.mprj.wbSlave_inst.STB_I
+@22
+io_ports_tb.uut.mprj.mprj.wbSlave_inst.ADR_I[31:0]
+@28
+io_ports_tb.uut.mprj.mprj.wbSlave_inst.WE_I
+@22
+io_ports_tb.uut.mprj.mprj.wbSlave_inst.SEL_I[3:0]
+io_ports_tb.uut.mprj.mprj.wbSlave_inst.DAT_I[31:0]
+@28
+io_ports_tb.uut.mprj.mprj.wbSlave_inst.ACK_O
+@22
+io_ports_tb.uut.mprj.mprj.wbSlave_inst.DAT_O[31:0]
+@200
+-gpioCtrl if
+@28
+io_ports_tb.uut.mprj.mprj.wbSlave_inst.CTRL_WE
+@22
+io_ports_tb.uut.mprj.mprj.wbSlave_inst.CTRL_ADDR[3:0]
+io_ports_tb.uut.mprj.mprj.wbSlave_inst.CTRL_DATA_IN[31:0]
+io_ports_tb.uut.mprj.mprj.wbSlave_inst.CTRL_DATA_OUT[31:0]
+@200
+-gpioCtrl
+@22
+io_ports_tb.uut.mprj.mprj.gpioCtrl_inst.DATA_IN_Q[31:0]
+io_ports_tb.uut.mprj.mprj.gpioCtrl_inst.DATA_OUT_Q[31:0]
+io_ports_tb.uut.mprj.mprj.gpioCtrl_inst.DATA_OE_Q[31:0]
+@200
+-gpioMprj
+@22
+io_ports_tb.uut.mprj.io_in[37:0]
+io_ports_tb.uut.mprj.io_out[37:0]
+io_ports_tb.uut.mprj.io_oeb[37:0]
+@200
+-gpioUut
+@22
+io_ports_tb.uut.user_io_in[37:0]
+io_ports_tb.uut.user_io_out[37:0]
+io_ports_tb.uut.user_io_oeb[37:0]
+[pattern_trace] 1
+[pattern_trace] 0
