@@ -32,7 +32,7 @@ set ::env(DESIGN_IS_CORE) 0
 
 set ::env(CLOCK_PORT) "wb_clk_i"
 #set ::env(CLOCK_NET) "gpioCtrl_inst.CLK"
-set ::env(CLOCK_PERIOD) "12"
+set ::env(CLOCK_PERIOD) "15"
 
 set ::env(FP_SIZING) absolute
 #set ::env(DIE_AREA) "0 0 900 600"
@@ -45,7 +45,7 @@ set ::env(PL_TARGET_DENSITY) 0.1
 
 # Maximum layer used for routing is metal 4.
 # This is because this macro will be inserted in a top level (user_project_wrapper) 
-# where the PDN is planned on metal 5. So, to avoid having shorts between routes
+# where the PDN is planned on metal. So, to avoid having shorts between routes
 # in this macro and the top level metal 5 stripes, we have to restrict routes to metal4.  
 set ::env(GLB_RT_MAXLAYER) 5
 

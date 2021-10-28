@@ -54,7 +54,7 @@ module io_ports_tb;
 
 		// Repeat cycles of 1000 clock edges as needed to complete testbench
 		//repeat (500) begin
-		repeat (25) begin
+		repeat (50) begin
 			repeat (1000) @(posedge clock);
 			$display("+1000 cycles");
 		end
@@ -83,6 +83,7 @@ module io_ports_tb;
 	    //wait(mprj_io_0 == 8'hFF);
 	    //wait(mprj_io_0 == 8'h00);
 		wait(mprj_io[31:0] === 32'h12345678);
+		#100;
 		
 		`ifdef GL
 	    	$display("Monitor: Test 1 Mega-Project IO (GL) Passed");

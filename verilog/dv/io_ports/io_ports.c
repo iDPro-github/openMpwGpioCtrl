@@ -28,7 +28,7 @@
 void main()
 {
 	int i;
-	uint32_t *curAddr;
+	volatile uint32_t *curAddr;
 	/* 
 	IO Control Registers
 	| DM     | VTRIP | SLOW  | AN_POL | AN_SEL | AN_EN | MOD_SEL | INP_DIS | HOLDH | OEB_N | MGMT_EN |
@@ -58,7 +58,7 @@ void main()
 	// Configure all 32 IOs as user output (37:32 unused!)
 	// Observe value in the testbench
 	for(i=0; i<32; i++) {
-		curAddr = 0x26000024 + i; // base address of reg_mprj_io_0
+		curAddr = 0x26000024 + (i*4); // base address of reg_mprj_io_0
 		*curAddr =  GPIO_MODE_USER_STD_OUTPUT;
 	}
 
