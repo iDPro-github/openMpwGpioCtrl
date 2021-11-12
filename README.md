@@ -2,9 +2,6 @@
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0) [![UPRJ_CI](https://github.com/efabless/caravel_project_example/actions/workflows/user_project_ci.yml/badge.svg)](https://github.com/efabless/caravel_project_example/actions/workflows/user_project_ci.yml) [![Caravel Build](https://github.com/efabless/caravel_project_example/actions/workflows/caravel_build.yml/badge.svg)](https://github.com/efabless/caravel_project_example/actions/workflows/caravel_build.yml)
 
-<>| :exclamation: Important Note            |
-<>|-----------------------------------------|
-
 Overview
 ========
 
@@ -19,20 +16,20 @@ System
 ======
 
 The user space contains 3 blocks:
-    1. wishboneSlave: Connection to caravel's RISC-V CPU
-    2. gpioModule: Simple GPIO control block connected to caravel's GPIO ports
-    3. ramInterface: Internal Memory for bus access and GPIO streaming
+  1. wishboneSlave: Connection to caravel's RISC-V CPU
+  2. gpioModule: Simple GPIO control block connected to caravel's GPIO ports
+  3. ramInterface: Internal Memory for bus access and GPIO streaming
 
 Adress Mapping
 ==============
 
-caraval user block:  0x30000000 to 0x7FFFFFFFF
-    GPIO user block:     0x30000000 to 0x30000000F
-        Control Register: 0x300000000 to 0x300000003
-        GPIO-Input      : 0x300000004 to 0x300000007
-        GPIO-Output     : 0x300000008 to 0x30000000B
-        GPIO-OutEnable  : 0x30000000C to 0x30000000F
-RAM user block:      0x30000080 to 0x3000000FF
+  * caraval user block      : 0x30000000 to 0x7FFFFFFF  
+    * GPIO user block       : 0x30000000 to 0x3000000F  
+      * Control Register    : 0x30000000 to 0x30000003  
+      * GPIO-Input          : 0x30000004 to 0x30000007  
+      * GPIO-Output         : 0x30000008 to 0x3000000B  
+      * GPIO-OutEnable      : 0x3000000C to 0x3000000F  
+    * RAM user block        : 0x30000080 to 0x300000FF  
 
 wishboneSlave
 =============
@@ -45,13 +42,16 @@ gpioModule
 The gpio module offers direct access to the caravel's GPIO lines 0 to 31. The registers "GPIO-Input", "GPIO-Output" and "GPIO-OutEnable" as listes in the chapter "Address Mapping" can be used for simple GPIO bit controlling to the corressponding GPIO port.
 
 The Control Register is composed of the follwoing control signals:
-    [00]     aSHIFT_IN_EN:  Enable the GPIO input stream automatic
-    [05:01]  aINPUT_SEL:    Select the GPIO input port for automatic streaming (0..31)
-    [06]     aSHIFT_OUT_EN: Enable the GPIO output stream automatic
-    [11:07]  aOUTPUT_SEL:   Select the GPIO output port for automatic streaming (0..31)
-    [12]     aOUTPUT_LOOP:  Enable the GPIO output stream to be repeated until aOUTPUT_LOOP=0
-    [22:13]  aOUTPUT_LEN:   Configure the GPIO output stream bitlength (0..1023)
-    [23]     aOUTPUT_LIMIT: Enable the GPIO output stream bitlength limit to aOUTPUT_LEN
+
+|Bits  |Parameter     |Description
+|------|--------------|-----------------------------------------------------------------
+|0     |aSHIFT_IN_EN  |Enable the GPIO input stream automatic
+|5:1   |aINPUT_SEL    |Select the GPIO input port for automatic streaming (0..31)
+|6     |aSHIFT_OUT_EN |Enable the GPIO output stream automatic
+|11:7  |aOUTPUT_SEL   |Select the GPIO output port for automatic streaming (0..31)
+|12    |aOUTPUT_LOOP  |Enable the GPIO output stream to be repeated until aOUTPUT_LOOP=0
+|22:13 |aOUTPUT_LEN   |Configure the GPIO output stream bitlength (0..1023)
+|23    |aOUTPUT_LIMIT |Enable the GPIO output stream bitlength limit to aOUTPUT_LEN
 
 For GPIO input stream, the corresponding configuration needs to be written to the Control Register and the data can be read from RAM when it is finished. The parameter "aSHIFT_IN_EN" is reset automatically.
 
